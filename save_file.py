@@ -12,15 +12,15 @@ import subprocess
 import pandas as pd
 
 cgitb.enable()
-matplotlib.use( 'Agg' )
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
 # my_path = os.getcwd() 
-my_path = os.path.join(os.getcwd(),'data') # Figures out the absolute path for you in case your working directory moves around.
+my_path = os.path.join(os.getcwd(),
+                       'data')  # Figures out the absolute path for you in case your working directory moves around.
 
 # Figures out the absolute path for you in case your working directory moves around.
 if not len(sys.argv) > 1:
-
     print("Content-Type: text/html")
     print()
     print('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
@@ -60,15 +60,19 @@ for fileitem in filefield:
         if fileitem.filename:
             # strip leading path from file name
             # to avoid directory traversal attacks
-            fn = os.path.basename(fileitem.filename.replace("\\", "/" ))
-            open(os.path.join(uploadFolder,fn), 'wb').write(fileitem.file.read())
+            fn = os.path.basename(fileitem.filename.replace("\\", "/"))
+            open(os.path.join(uploadFolder, fn), 'wb').write(fileitem.file.read())
             # print('The file "' + fn + '" was uploaded successfully')
-def showPlot(my_file,ax=None,label=False):
-    myfullpath=os.path.join(my_path,my_file)
+
+
+def showPlot(my_file, ax=None, label=False, inverted=False):
+    myfullpath = os.path.join(my_path, my_file)
     # myfullpath = '/Users/furkankykc/Sites/ex1.png'
-    if(os.path.isfile(myfullpath)):
+    if (os.path.isfile(myfullpath)):
         os.remove(myfullpath)
-    plt.savefig(myfullpath,dpi=300)
+    if inverted:
+        plt.gca().invert_yaxis()
+    plt.savefig(myfullpath, dpi=300)
     print('''
     <div class="col-sm-6">
     
@@ -76,28 +80,35 @@ def showPlot(my_file,ax=None,label=False):
     if label:
         print(f"<h3>{my_file.split('.')[0]} Plot </h3>")
 
-    print("<img width=\"400\" class=\"w-100\" height=\"300\"src=\"data/"+my_file+".png\">")
+    print("<img width=\"400\" class=\"w-100\" height=\"300\"src=\"data/" + my_file + ".png\">")
     print('''
 </div>''')
 
-def dataalign(path,align=True, lim=-1, sep=' ',ax=None,color=None):
+
+def dataalign(path, align=True, lim=-1, sep=' ', ax=None, color=None, text_size=12):
     data = np.loadtxt(path, delimiter=sep, dtype=np.float, skiprows=2)
     lab = read_label(path)
     x, y = data.T
     if align:
         x = x - min(x)
-    if lim!= -1:
+    if lim != -1:
         x = x[np.where(x < lim)]
     if color is not None:
         if ax is None:
-            plt.plot(x, y[:len(x)], label=lab.split("|")[3],color=color)
+            plt.plot(x, y[:len(x)], label=lab.split("|")[3], color=color)
         else:
-            ax.plot(x, y[:len(x)], label=lab.split("|")[3],color=color)
+            ax.plot(x, y[:len(x)], label=lab.split("|")[3], color=color)
     else:
         if ax is None:
             plt.plot(x, y[:len(x)], label=lab.split("|")[3])
         else:
             ax.plot(x, y[:len(x)], label=lab.split("|")[3])
+    if label_x is not None:
+        plt.xlabel(label_x, fontweight='bold', size=text_size)
+    if label_y is not None:
+        plt.ylabel(label_y, fontweight='bold', size=text_size)
+    plt.xticks(weight='bold', size=text_size)
+    plt.yticks(weight='bold', size=text_size)
 
 
 def read_label(file):
@@ -109,14 +120,15 @@ def read_label(file):
         # print('\n'.join(arr))
     return '|'.join(arr)
 
+
 def removeFiles():
     for root, dirs, files in os.walk(my_path):
         for file in files:
             if file.lower().endswith('.txt'):
-                os.remove(os.path.join(my_path,file))
+                os.remove(os.path.join(my_path, file))
 
 
-def plot(cross = False,legend = False,align=False,limit=-1,color='blue'):
+def plot(cross=False, legend=False, align=False, limit=-1, color='blue', inverted=False, text_size=12):
     import os
     if cross:
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -127,15 +139,17 @@ def plot(cross = False,legend = False,align=False,limit=-1,color='blue'):
                 if legend:
                     plt.legend()
                 if not cross:
-                    fig,ax = plt.subplots(figsize=(8, 6))
-                    dataalign(os.path.join(root, file),align=align,lim=limit,ax=ax,color=color)
-                    showPlot(file.split('.')[0],label=True)
+                    fig, ax = plt.subplots(figsize=(8, 6))
+                    dataalign(os.path.join(root, file), align=align, lim=limit, ax=ax, color=color, text_size=text_size)
+
+                    showPlot(file.split('.')[0], label=True, inverted=inverted)
                 else:
-                    dataalign(os.path.join(root, file),align=align,lim=limit,ax=ax)
+                    dataalign(os.path.join(root, file), align=align, lim=limit, ax=ax, text_size=text_size)
 
     if cross:
         print("""<h3>Crossed Plot</h3>""")
-        showPlot('temp4')
+        showPlot('temp4', inverted=inverted)
+
 
 legend = form.getvalue('legend')
 cross = form.getvalue('cross')
@@ -143,13 +157,31 @@ reset = form.getvalue('reset')
 align = form.getvalue('align')
 color = form.getvalue('color')
 limit = int(form.getvalue('limit'))
+label_x = form.getvalue('xlabel')
+label_y = form.getvalue('ylabel')
+inverted = form.getvalue('invert')
+text_size = int(form.getvalue('size'))
+
+if limit is None:
+    limit = -1
+if label_y is None:
+    label_y = 'Current(V)'
+if label_x is None:
+    label_x = 'Time(s)'
+if text_size is not None:
+    text_size = 12
 if reset:
     removeFiles()
 else:
-    plot(cross,legend,align,limit,color)
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    plt.xticks(weight='bold', size=text_size)
+    plt.yticks(weight='bold', size=text_size)
+    plt.ylabel(label_y, fontweight='bold', size=text_size)
+    plt.xlabel(label_y, fontweight='bold', size=text_size)
+    plot(cross, legend, align, limit, color, inverted, text_size=text_size)
 if not len(sys.argv) > 1:
     print('</body>')
-
 
 # form = cgi.FieldStorage()
 # if 'file' in form:

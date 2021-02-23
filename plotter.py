@@ -12,12 +12,11 @@ import subprocess
 import pandas as pd
 
 cgitb.enable()
-os.environ[ 'HOME' ] = '/tmp/'
-matplotlib.use( 'Agg' )
+os.environ['HOME'] = '/tmp/'
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
 if not len(sys.argv) > 1:
-
     print("Content-Type: text/html")
     print()
     print('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
@@ -31,58 +30,74 @@ if not len(sys.argv) > 1:
   <title>Pretty Plotter</title>
   </head>
     ''')
-    
-    
+
     print('<body>')
 
 
 def uploadForm():
     print("""
-    <style>.checkbox-warning-filled [type="checkbox"][class*='filled-in']:checked+label:after {
-  border-color: #FF8800;
-  background-color: #FF8800;}
-</style>
-    <div class="container col-sm-4" >
-<form enctype="multipart/form-data" action="save_file.py" method="post">
+        <style>.checkbox-warning-filled [type="checkbox"][class*='filled-in']:checked+label:after {
+      border-color: #FF8800;
+      background-color: #FF8800;}
+    </style>
+        <div class="container col-sm-4" >
+    <form enctype="multipart/form-data" action="save_file.py" method="post">
 
- 
 
-   <div class="form-control mb-3">
-<label class="form-label" for="color">Plot Color</label>
-<input id="color" class="form-control" type="color" name="color" value="#0433ff">
-</div>
-  <div class="form-floating mb-3">
-<input id="limit" class="form-control" type="number" name="limit" value="-1" placeholder="-1" >
-<label for="limit">Limit: </label>
-   </div>
-  <div class="form-check form-switch">
- <input id="cross" class="form-check-input" type="checkbox" name="cross" value="true" checked>
- <label class="form-check-label" for="cross">Merge</label>
-   </div>
-<div class="form-check form-switch">
-<input class="form-check-input" id="legend" type="checkbox" name="legend" value="true" checked>
-<label class="form-check-label" for="legend">Legends</label>
-   </div>
 
-<div class="form-check form-switch">
-<input id="align" class="form-check-input" type="checkbox" name="align" value="true" checked>
-<label class="form-check-label" for="align">Align</label>
-   </div>
-   <div class="form-check form-switch checkbox-warning-filled">
-<input id="reset" class="form-check-input" type="checkbox" name="reset">
-<label class="form-check-label" for="reset">Reset</label>
-   </div>
-   <div class="mb-3">
-<label for="file">File: </label><input id="file" class="form-control form-control-sm" type="file" name="file" multiple="">
-   </div>
+       <div class="form-control mb-3">
+    <label class="form-label" for="color">Plot Color</label>
+    <input id="color" class="form-control" type="color" name="color" value="#0433ff">
+    </div>
+      <div class="form-floating mb-3">
+    <input id="xlabel" class="form-control" type="text" name="xlabel" value="Time(s)" >
+    <label for="xlabel">X Label </label>
+       </div>
+         <div class="form-floating mb-3">
+    <input id="ylabel" class="form-control" type="text" name="ylabel"  value="Current(V)" >
+    <label for="ylabel">Y Label </label>
+       </div>
+         <div class="form-floating mb-3">
+    <input id="size" class="form-control" type="number" name="size" value="12" placeholder="12" >
+    <label for="size">Size </label>
+       </div>
+      <div class="form-floating mb-3">
+    <input id="limit" class="form-control" type="number" name="limit" value="-1" placeholder="-1" >
+    <label for="limit">Limit </label>
+       </div>
+      <div class="form-check form-switch">
+     <input id="cross" class="form-check-input" type="checkbox" name="cross" value="true" checked>
+     <label class="form-check-label" for="cross">Merge</label>
+       </div>
+    <div class="form-check form-switch">
+    <input class="form-check-input" id="legend" type="checkbox" name="legend" value="true" checked>
+    <label class="form-check-label" for="legend">Legends</label>
+       </div>
 
-<input class="form-control btn btn-primary" type="submit" value="Plot">
-</div>
-</div>
-</form>""")
+    <div class="form-check form-switch">
+    <input id="align" class="form-check-input" type="checkbox" name="align" value="true" checked>
+    <label class="form-check-label" for="align">Align</label>
+       </div>
+       <div class="form-check form-switch">
+    <input class="form-check-input" id="invert" type="checkbox" name="invert" >
+    <label class="form-check-label" for="invert">Invert it!</label>
+       </div>
+
+       <div class="form-check form-switch checkbox-warning-filled">
+    <input id="reset" class="form-check-input" type="checkbox" name="reset">
+    <label class="form-check-label" for="reset">Reset</label>
+       </div>
+       <div class="mb-3">
+    <label for="file">File: </label><input id="file" class="form-control form-control-sm" type="file" name="file" multiple="">
+       </div>
+
+    <input class="form-control btn btn-primary" type="submit" value="Plot">
+    </div>
+    </div>
+    </form>""")
+
 
 uploadForm()
 
 if not len(sys.argv) > 1:
     print('</body>')
-
