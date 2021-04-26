@@ -1,3 +1,3 @@
 # PrettyPlotter
 Pretty Plotter for Autolab Data
-![image]/(images/ui.png)
+![image](images/ui.png)
